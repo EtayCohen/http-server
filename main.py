@@ -12,12 +12,8 @@ class ClientThread(threading.Thread):
 
     def run(self):
         print("Connection from : ", self.address)
-        while True:
-            self.handle()
+        self.handle()
         #print("Client at ", self.address, " disconnected...")
-
-    def stop(self):
-        # TODO: ADD STOP FUNCTION
 
     def handle(self):
         r = Request(self.socket.recv(2048).decode())
@@ -36,7 +32,6 @@ class ClientThread(threading.Thread):
         print('->', r)
         self.socket.sendall(r)
         self.socket.close()
-        #self.stop()
 
 
 class Response:
