@@ -16,8 +16,11 @@ class ClientThread(threading.Thread):
             self.handle()
         #print("Client at ", self.address, " disconnected...")
 
+    def stop(self):
+        # TODO: ADD STOP FUNCTION
+
     def handle(self):
-        r = Request(self.socket.recv(4096).decode())
+        r = Request(self.socket.recv(2048).decode())
         if r.url == '/':
             r.url = '/index.html'
         r.url = r.url[1::]
@@ -32,6 +35,8 @@ class ClientThread(threading.Thread):
             r = Response(data=b'404 FILE NOT FOUND', status='404 Not Found', headers=b"Server: LAXCITY\n").__bytes__()
         print('->', r)
         self.socket.sendall(r)
+        self.socket.close()
+        #self.stop()
 
 
 class Response:
@@ -85,7 +90,6 @@ class Server:
             r.url = '/index.html'
         r.url = r.url[1::]
         self.response(r)
-
     def response(self, request):
         print('\n[*] New Request :', request.url)
         if os.exists(request.url):
@@ -104,3 +108,11 @@ def main():
 
 if __name__ == '__main__':
     main()
+'''
+def gen_header(self, url):
+        headers = b'Connection: Keep-Alive\nContent-Encoding: gzip\n\n'
+        with open(url, 'rb+') as file:
+            headers += b"Content-Length:" + str(len(file.read())).encode() + b'\n'
+        if '.html'in url:
+            headers += b'Content-Type: text/html\n'
+        return headers'''
