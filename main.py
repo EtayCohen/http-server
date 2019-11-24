@@ -8,12 +8,9 @@ class ClientThread(threading.Thread):
         threading.Thread.__init__(self)
         self.socket = accepted[0]
         self.address = accepted[1]
-        print("New connection added: ", self.address)
 
     def run(self):
-        print("Connection from : ", self.address)
         self.handle()
-        #print("Client at ", self.address, " disconnected...")
 
     def handle(self):
         r = Request(self.socket.recv(2048).decode())
@@ -22,11 +19,19 @@ class ClientThread(threading.Thread):
         r.url = r.url[1::]
         self.response(r)
 
+    def gen_header(self, url):
+        headers = b'Connection: Keep-Alive\n'
+        with open(url, 'rb+') as file:
+            headers += b"Content-Length:" + str(len(file.read())).encode() + b'\n'
+        if '.html'in url:
+            headers += b'Content-Type: text/html\n'
+        return headers
+
     def response(self, request):
         print('\n[*] New Request :', request.url)
         if os.exists(request.url):
             with open(request.url, 'rb+') as file:
-                r = Response(data=file.read(), status='200 OK', headers=b'Connection: Keep-Alive\nServer: LAXCITY\n').__bytes__()
+                r = Response(data=file.read(), status='200 OK', headers=self.gen_header(request.url)).__bytes__()
         else:
             r = Response(data=b'404 FILE NOT FOUND', status='404 Not Found', headers=b"Server: LAXCITY\n").__bytes__()
         print('->', r)
@@ -96,6 +101,7 @@ class Server:
         self.client[0].sendall(r)
     """
 
+
 def main():
     server = Server()
     server.start()
@@ -103,11 +109,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-'''
-def gen_header(self, url):
-        headers = b'Connection: Keep-Alive\nContent-Encoding: gzip\n\n'
-        with open(url, 'rb+') as file:
-            headers += b"Content-Length:" + str(len(file.read())).encode() + b'\n'
-        if '.html'in url:
-            headers += b'Content-Type: text/html\n'
-        return headers'''
+
