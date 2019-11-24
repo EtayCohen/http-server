@@ -28,12 +28,11 @@ class ClientThread(threading.Thread):
         return headers
 
     def response(self, request):
-        print('\n[*] New Request :', request.url)
         if os.exists(request.url):
             with open(request.url, 'rb+') as file:
                 r = Response(data=file.read(), status='200 OK', headers=self.gen_header(request.url)).__bytes__()
         else:
-            r = Response(data=b'404 FILE NOT FOUND', status='404 Not Found', headers=b"Server: LAXCITY\n").__bytes__()
+            r = Response(data=b'404 FILE NOT FOUND', status='404 Not Found', headers=b"Server: <3\n").__bytes__()
         print('->', r)
         self.socket.sendall(r)
         self.socket.close()
@@ -83,6 +82,7 @@ class Server:
             thread.start()
             #self.client = self.socket.accept()
             #self.handle()
+
     """
     def handle(self):
         r = Request(self.client[0].recv(2048).decode())
